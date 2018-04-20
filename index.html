@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue.js forms</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous">
+
+  <style>
+    #wrapper {
+      opacity: 0;
+      transition: opacity 0.25s ease-in;
+    }
+    input {
+      width: 100%;
+      max-width: 100%;
+      margin-bottom: 5px;
+    }
+
+    form {
+      margin-bottom: 30px;
+    }
+
+    .container {
+      max-width: none;
+    }
+
+    .has-error input {
+      border-color: #f5c6cb;
+    }
+
+  </style>
+
+  <noscript>
+    <style>
+      #wrapper {
+        opacity: 1;
+      }
+    </style>
+  </noscript>
+</head>
+
+<body>
+
+  <div id="wrapper">
+    <div id="vue-form">
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col-md-4">
+            <form @submit.prevent="addUser(scopes[step])" v-show="step === 0" :data-vv-scope="scopes[step]" action="#">
+              <fieldset>
+                <legend>User main information</legend>
+
+                <div class="form-group" :class="{ 'has-error': errors.has('main.first_name') }">
+                  <label for="name">First Name</label>
+                  <input class="form-control" type="text" id="name" name="first_name" minlength="4" v-model="input.firstName" data-vv-as="First Name" v-validate=" 'required|min:4' ">
+
+                  <div v-show="errors.has('main.first_name')" class="alert alert-danger">
+                    {{ errors.first('main.first_name') }}</div>
+                </div>
+
+                <div class="form-group" :class="{ 'has-error': errors.has('main.last_name') }">
+                  <label for="last-name">Last Name</label>
+                  <input class="form-control" type="text" id="last-name" name="last_name" minlength="4" v-model="input.lastName" data-vv-as="Last Name"
+                    v-validate=" 'required|min:4' ">
+
+                  <div v-show="errors.has('main.last_name')" class="alert alert-danger">{{ errors.first('main.last_name') }}</div>
+                </div>
+
+                <div class="form-group" :class="{ 'has-error': errors.has('main.email') }">
+                  <label for="email">Email</label>
+                  <input class="form-control" type="email" id="email" name="email" v-model="input.email" data-vv-as="Email" v-validate=" 'required|email' ">
+
+                  <div v-show="errors.has('main.email')" class="alert alert-danger">{{ errors.first('main.email') }}</div>
+                </div>
+
+                <div class="form-group" :class="{ 'has-error': errors.has('main.age') }">
+                  <label for="age">Age</label>
+                  <input class="form-control" type="number" id="age" name="age" min="0" max="150" v-model="input.age" data-vv-as="Age" v-validate=" 'numeric|max_value:150' ">
+
+                  <div v-show="errors.has('main.age')" class="alert alert-danger">{{ errors.first('main.age') }}</div>
+                </div>
+
+                <div class="form-group" :class="{ 'has-error': errors.has('main.skype') }">
+                  <label for="skype">Skype</label>
+                  <input class="form-control" type="text" id="skype" name="skype" minlength="4" maxlength="10" v-model="input.skype" data-vv-as="Skype"
+                    v-validate=" 'min:4|max:10' ">
+
+                  <div v-show="errors.has('main.skype')" class="alert alert-danger">{{ errors.first('main.skype') }}</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Next</button>
+              </fieldset>
+
+            </form>
+
+            <form @submit.prevent="addUser(scopes[scopes.length - 1])" v-show="step === scopes.length - 1" :data-vv-scope="scopes[scopes.length - 1]"
+              action="#">
+              <fieldset>
+                <legend>User additional information</legend>
+                <div class="form-group" :class="{ 'has-error': errors.has('additional.hobbies') }">
+                  <label for="hobbies">Hobbies</label>
+                  <input class="form-control" type="text" id="hobbies" name="hobbies" maxlength="100" v-model="input.hobbies" data-vv-as="Hobbies">
+
+                  <div v-show="errors.has('additional.hobbies')" class="alert alert-danger">{{ errors.first('additional.hobbies') }}</div>
+                </div>
+
+                <div class="form-group" :class="{ 'has-error': errors.has('additional.telephones') }">
+                  <label for="telephones">Telephones</label>
+                  <input class="form-control" type="text" id="telephones" name="telephones" v-model="input.telephones" data-vv-as="Telephones">
+
+                  <div v-show="errors.has('additional.telephones')" class="alert alert-danger">{{ errors.first('additional.telephones') }}</div>
+                </div>
+
+                <div class="form-group" :class="{ 'has-error': errors.has('additional.nickname') }">
+                  <label for="nickname">Nickname</label>
+                  <input class="form-control" type="text" id="nickname" name="nickname" v-model="input.nickname" data-vv-as="Nickname" v-validate=" 'nickname' ">
+
+                  <div v-show="errors.has('additional.nickname')" class="alert alert-danger">{{ errors.first('additional.nickname') }}</div>
+                </div>
+
+                <div>
+                  <button @click.prevent="prevStep" type="button" class="btn btn-primary">Prev</button>
+                  <button type="submit" class="btn btn-success">Add new user</button>
+                </div>
+              </fieldset>
+
+            </form>
+          </div>
+
+          <div class="col-md-8">
+            <div class="table-responsive">
+              <table class="table table-hover" id="result" v-if="users.length">
+                <caption>List of users: total {{users.length}}</caption>
+                <thead class="thead-dark">
+                  <tr>
+                    <th v-for="(item, index) in input">
+                      {{index[0].toUpperCase() + index.slice(1)}}
+                    </th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="user in users">
+                    <td v-for="key in user">{{ key }}</td>
+                    <td>
+                      <button @click.prevent="removeItem($event, 'users')" class="btn btn-danger">Delete</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/vee-validate@2.0.0-rc.7"></script>
+  <script>
+    Vue.use(VeeValidate);
+  </script>
+  <script src="main.js"></script>
+</body>
+
+</html>
